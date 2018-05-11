@@ -9,10 +9,12 @@ buildscript {
   }
   dependencies {
     classpath 'gradle.plugin.net.vivin:gradle-semantic-build-versioning:4.0.0'
+    classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
   }
 }
 
 apply plugin: 'net.vivin.gradle-semantic-build-versioning'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 //otherwise it defaults to the folder name
 rootProject.name = 'li-apache-kafka-clients'

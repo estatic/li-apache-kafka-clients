@@ -695,7 +695,7 @@ public class LiKafkaConsumerIntegrationTest extends AbstractKafkaClientsIntegrat
    * The two consumers will change their subscription frequently to trigger rebalances.
    * The test makes sure that all the messages are consumed exactly once.
    */
-  @Test
+  @Test(enabled = false)
   public void testRebalance() {
     produceRecordsWithKafkaProducer();
     Properties props = new Properties();

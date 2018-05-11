@@ -1,3 +1,6 @@
+/*
+ * Copyright 2017 LinkedIn Corp. Licensed under the BSD 2-Clause License (the "License").  See License in the project root for license information.
+ */
 package com.linkedin.kafka.clients.largemessage;
 
 import org.apache.avro.io.DatumReader;
@@ -29,15 +32,15 @@ public class AvroSegmentDeserializer implements Deserializer<LargeMessageSegment
 
         try {
             LargeAvroMessage data = reader.read(null, decoder);
-            byte version = (byte)data.getMetadata().get("version");
+            byte version = (byte) data.getMetadata().get("version");
             if (version > LargeMessageSegment.CURRENT_VERSION) {
                 LOG.debug("Serialized version byte is greater than {}. not large message segment.",
                         LargeMessageSegment.CURRENT_VERSION);
                 return null;
             }
-            int checksum = (int)data.getMetadata().get("sign");
-            long messageIdMostSignificantBits = (long)data.getMetadata().get("most_sign_bits");
-            long messageIdLeastSignificantBits = (long)data.getMetadata().get("least_sign_bits");
+            int checksum = (int) data.getMetadata().get("sign");
+            long messageIdMostSignificantBits = (long) data.getMetadata().get("most_sign_bits");
+            long messageIdLeastSignificantBits = (long) data.getMetadata().get("least_sign_bits");
             if (checksum == 0 ||
                     checksum != ((int) (messageIdMostSignificantBits + messageIdLeastSignificantBits))) {
                 LOG.debug("Serialized segment checksum does not match. not large message segment.");
@@ -45,9 +48,9 @@ public class AvroSegmentDeserializer implements Deserializer<LargeMessageSegment
             }
             UUID messageId = new UUID(messageIdMostSignificantBits, messageIdLeastSignificantBits);
             return new LargeMessageSegment(messageId,
-                    (int)data.getMetadata().get("sequence_number"),
-                    (int)data.getMetadata().get("number_of_segments"),
-                    (int)data.getMetadata().get("message_size_in_bytes"), data.getValue());
+                    (int) data.getMetadata().get("sequence_number"),
+                    (int) data.getMetadata().get("number_of_segments"),
+                    (int) data.getMetadata().get("message_size_in_bytes"), data.getValue());
         } catch (IOException e) {
             e.printStackTrace();
         }
