@@ -4,6 +4,8 @@
 package com.linkedin.kafka.clients.largemessage;
 
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
@@ -26,34 +28,36 @@ public class AvroSegmentSerializer implements Serializer<LargeMessageSegment> {
     @Override
     public byte[] serialize(String s, LargeMessageSegment segment) {
         if (segment.numberOfSegments > 1) {
-            String schema = "{\"namespace\": \"avro-message.avro\",\n" +
+            String schema = "{\"namespace\": \"message.avro\",\n" +
                     " \"type\": \"record\",\n" +
-                    " \"name\": \"LargeAvroMessage\",\n" +
+                    " \"name\": \"GenericData.Record\",\n" +
                     " \"fields\": [\n" +
-                    "     {\"name\": \"key\", \"type\": \"string\"},\n" +
-                    "     {\"name\": \"value\",  \"type\": [\"byte\"]},\n" +
-                    "     {\"name\": \"metadata\", \"type\": {\"type\": \"map\", \"values\": \"string\"}\n" +
+                    "     {\"name\": \"key\", \"type\": [\"null\", \"string\"]},\n" +
+                    "     {\"name\": \"value\",  \"type\": [\"bytes\"]},\n" +
+                    "     {\"name\": \"metadata\", \"type\": {\"type\": \"map\", \"values\": [\"null\", \"string\"]}}" +
+                    "   ]\n" +
                     "}";
             Schema sc = new Schema.Parser().parse(schema);
-            LargeAvroMessage data = new LargeAvroMessage();
-            Map<String, Object> metadata = new HashMap<>();
-            data.setKey(s);
-            data.setValue(segment.payload);
+            GenericData.Record data = new GenericData.Record(sc);
+            Map<String, String> metadata = new HashMap<>();
+            data.put("key", s == null ? String.valueOf(segment.messageId.getMostSignificantBits()) : s);
+            data.put("value", segment.payload);
 
-            metadata.put("version", LargeMessageSegment.CURRENT_VERSION);
-            metadata.put("sign", (segment.messageId.getMostSignificantBits() + segment.messageId.getLeastSignificantBits()));
-            metadata.put("most_sign_bits", segment.messageId.getMostSignificantBits());
-            metadata.put("least_sign_bits", segment.messageId.getLeastSignificantBits());
-            metadata.put("sequence_number", segment.sequenceNumber);
+            metadata.put("version", String.valueOf(LargeMessageSegment.CURRENT_VERSION));
+            long checksum = segment.messageId.getMostSignificantBits() + segment.messageId.getLeastSignificantBits();
+            metadata.put("sign", String.valueOf(checksum));
+            metadata.put("most_sign_bits", String.valueOf(segment.messageId.getMostSignificantBits()));
+            metadata.put("least_sign_bits", String.valueOf(segment.messageId.getLeastSignificantBits()));
+            metadata.put("sequence_number", String.valueOf(segment.sequenceNumber));
 
-            metadata.put("number_of_segments", segment.numberOfSegments);
-            metadata.put("message_size_in_bytes", segment.messageSizeInBytes);
-
-            data.setMetadata(metadata);
+            metadata.put("number_of_segments", String.valueOf(segment.numberOfSegments));
+            metadata.put("message_size_in_bytes", String.valueOf(segment.messageSizeInBytes));
+            data.put("metadata", metadata);
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
-            DatumWriter<LargeAvroMessage> writer = new SpecificDatumWriter<>(sc);
+            //Object sd = SpecificData.newInstance(LargeAvroMessage.class, sc);
+            DatumWriter<GenericRecord> writer = new SpecificDatumWriter<>(sc);
 
             try {
                 writer.write(data, encoder);

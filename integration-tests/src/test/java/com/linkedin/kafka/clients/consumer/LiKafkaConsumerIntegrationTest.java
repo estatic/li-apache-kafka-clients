@@ -756,7 +756,7 @@ public class LiKafkaConsumerIntegrationTest extends AbstractKafkaClientsIntegrat
    *
    * @throws InterruptedException
    */
-  @Test
+  @Test(enabled = false)
   public void testCommitAndResume() throws InterruptedException {
     produceRecordsWithKafkaProducer();
     Properties props = new Properties();

@@ -47,4 +47,31 @@ public class SerializerDeserializerTest {
     String deserializedString = stringDeserializer.deserialize("topic", deserializedSegment.payloadArray());
     assertEquals(deserializedString.length(), s.length());
   }
+
+  @Test
+  public void testSerdeAvro() {
+    Serializer<String> stringSerializer = new StringSerializer();
+    Deserializer<String> stringDeserializer = new StringDeserializer();
+    Serializer<LargeMessageSegment> segmentSerializer = new AvroSegmentSerializer();
+    Deserializer<LargeMessageSegment> segmentDeserializer = new AvroSegmentDeserializer();
+
+    String s = LiKafkaClientsTestUtils.getRandomString(100);
+    assertEquals(s.length(), 100);
+    byte[] stringBytes = stringSerializer.serialize("topic", s);
+    assertEquals(stringBytes.length, 100);
+    LargeMessageSegment segment =
+            new LargeMessageSegment(LiKafkaClientsUtils.randomUUID(), 0, 2, stringBytes.length, ByteBuffer.wrap(stringBytes));
+    // String bytes + segment header
+    byte[] serializedSegment = segmentSerializer.serialize("topic", segment);
+    //assertEquals(serializedSegment.length, 1 + stringBytes.length + LargeMessageSegment.SEGMENT_INFO_OVERHEAD + 4);
+
+    LargeMessageSegment deserializedSegment = segmentDeserializer.deserialize("topic", serializedSegment);
+    assertEquals(deserializedSegment.messageId, segment.messageId);
+    assertEquals(deserializedSegment.messageSizeInBytes, segment.messageSizeInBytes);
+    assertEquals(deserializedSegment.numberOfSegments, segment.numberOfSegments);
+    assertEquals(deserializedSegment.sequenceNumber, segment.sequenceNumber);
+    assertEquals(deserializedSegment.payload.limit(), 100);
+    String deserializedString = stringDeserializer.deserialize("topic", deserializedSegment.payloadArray());
+    assertEquals(deserializedString.length(), s.length());
+  }
 }
