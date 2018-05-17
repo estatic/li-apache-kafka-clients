@@ -56,7 +56,6 @@ public class AvroSegmentSerializer implements Serializer<LargeMessageSegment> {
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
-            //Object sd = SpecificData.newInstance(LargeAvroMessage.class, sc);
             DatumWriter<GenericRecord> writer = new SpecificDatumWriter<>(sc);
 
             try {

@@ -31,8 +31,8 @@ public class MessageSplitterTest {
     String message = LiKafkaClientsTestUtils.getRandomString(1000);
     Serializer<String> stringSerializer = new StringSerializer();
     Deserializer<String> stringDeserializer = new StringDeserializer();
-    Serializer<LargeMessageSegment> segmentSerializer = new DefaultSegmentSerializer();
-    Deserializer<LargeMessageSegment> segmentDeserializer = new DefaultSegmentDeserializer();
+    Serializer<LargeMessageSegment> segmentSerializer = new AvroSegmentSerializer();
+    Deserializer<LargeMessageSegment> segmentDeserializer = new AvroSegmentDeserializer();
     MessageSplitter splitter = new MessageSplitterImpl(200, segmentSerializer, new UUIDFactory.DefaultUUIDFactory<>());
 
     byte[] serializedMessage = stringSerializer.serialize("topic", message);

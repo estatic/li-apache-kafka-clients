@@ -44,7 +44,7 @@ public class ConsumerRecordsProcessorTest {
   public void testFilter() throws Exception {
     // Create consumer record processor
     Serializer<String> stringSerializer = new StringSerializer();
-    Serializer<LargeMessageSegment> segmentSerializer = new DefaultSegmentSerializer();
+    Serializer<LargeMessageSegment> segmentSerializer = new AvroSegmentSerializer();
     ConsumerRecordsProcessor<String, String> consumerRecordsProcessor = createConsumerRecordsProcessor();
 
     // Let consumer record 0 be a normal record.
@@ -93,7 +93,7 @@ public class ConsumerRecordsProcessorTest {
   @Test
   public void testSafeOffsetWithoutLargeMessage() throws IOException {
     Serializer<String> stringSerializer = new StringSerializer();
-    Serializer<LargeMessageSegment> segmentSerializer = new DefaultSegmentSerializer();
+    Serializer<LargeMessageSegment> segmentSerializer = new AvroSegmentSerializer();
     ConsumerRecordsProcessor<String, String> consumerRecordsProcessor = createConsumerRecordsProcessor();
 
     // Let consumer record 0 and 1 be a normal record.
@@ -169,7 +169,7 @@ public class ConsumerRecordsProcessorTest {
   @Test
   public void testEviction() {
     Serializer<String> stringSerializer = new StringSerializer();
-    Serializer<LargeMessageSegment> segmentSerializer = new DefaultSegmentSerializer();
+    Serializer<LargeMessageSegment> segmentSerializer = new AvroSegmentSerializer();
     // Create two large messages.
     MessageSplitter splitter = new MessageSplitterImpl(500, segmentSerializer, new UUIDFactory.DefaultUUIDFactory<>());
 
@@ -238,7 +238,7 @@ public class ConsumerRecordsProcessorTest {
   @Test(expectedExceptions = OffsetNotTrackedException.class)
   public void testStartingOffsetWithNormalMessages() throws IOException {
     Serializer<String> stringSerializer = new StringSerializer();
-    Serializer<LargeMessageSegment> segmentSerializer = new DefaultSegmentSerializer();
+    Serializer<LargeMessageSegment> segmentSerializer = new AvroSegmentSerializer();
     ConsumerRecordsProcessor<String, String> consumerRecordsProcessor = createConsumerRecordsProcessor();
 
     // Let consumer record 0 be a normal record.
@@ -312,7 +312,7 @@ public class ConsumerRecordsProcessorTest {
 
       }
     };
-    Deserializer<LargeMessageSegment> segmentDeserializer = new DefaultSegmentDeserializer();
+    Deserializer<LargeMessageSegment> segmentDeserializer = new AvroSegmentDeserializer();
     MessageAssembler assembler = new MessageAssemblerImpl(5000, 100, false, segmentDeserializer);
     DeliveredMessageOffsetTracker deliveredMessageOffsetTracker = new DeliveredMessageOffsetTracker(4);
     ConsumerRecordsProcessor processor =  new ConsumerRecordsProcessor<>(assembler, stringDeserializer, errorThrowingDeserializer,
@@ -352,7 +352,7 @@ public class ConsumerRecordsProcessorTest {
 
   private ConsumerRecords<byte[], byte[]> getConsumerRecords() {
     Serializer<String> stringSerializer = new StringSerializer();
-    Serializer<LargeMessageSegment> segmentSerializer = new DefaultSegmentSerializer();
+    Serializer<LargeMessageSegment> segmentSerializer = new AvroSegmentSerializer();
     // Create two large messages.
     MessageSplitter splitter = new MessageSplitterImpl(500, segmentSerializer, new UUIDFactory.DefaultUUIDFactory<>());
 
@@ -401,7 +401,7 @@ public class ConsumerRecordsProcessorTest {
 
   private ConsumerRecordsProcessor<String, String> createConsumerRecordsProcessor() {
     Deserializer<String> stringDeserializer = new StringDeserializer();
-    Deserializer<LargeMessageSegment> segmentDeserializer = new DefaultSegmentDeserializer();
+    Deserializer<LargeMessageSegment> segmentDeserializer = new AvroSegmentDeserializer();
     MessageAssembler assembler = new MessageAssemblerImpl(5000, 100, false, segmentDeserializer);
     DeliveredMessageOffsetTracker deliveredMessageOffsetTracker = new DeliveredMessageOffsetTracker(4);
     return new ConsumerRecordsProcessor<>(assembler, stringDeserializer, stringDeserializer, deliveredMessageOffsetTracker, null);

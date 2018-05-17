@@ -4,6 +4,7 @@
 
 package com.linkedin.kafka.clients.consumer;
 
+import com.linkedin.kafka.clients.largemessage.AvroSegmentDeserializer;
 import com.linkedin.kafka.clients.largemessage.DefaultSegmentDeserializer;
 import com.linkedin.kafka.clients.auditing.NoOpAuditor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -117,7 +118,7 @@ public class LiKafkaConsumerConfig extends AbstractConfig {
                 VALUE_DESERIALIZER_CLASS_DOC)
         .define(SEGMENT_DESERIALIZER_CLASS_CONFIG,
                 Type.CLASS,
-                DefaultSegmentDeserializer.class.getName(),
+                AvroSegmentDeserializer.class.getName(),
                 Importance.HIGH,
                 SEGMENT_DESERIALIZER_CLASS_DOC)
         .define(AUDITOR_CLASS_CONFIG,

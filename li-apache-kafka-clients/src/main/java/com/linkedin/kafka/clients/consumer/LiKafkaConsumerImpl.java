@@ -246,7 +246,9 @@ public class LiKafkaConsumerImpl<K, V> implements LiKafkaConsumer<K, V> {
       }
       ConsumerRecords<byte[], byte[]> rawRecords = ConsumerRecords.empty();
       try {
+        LOG.info("Polling....");
          rawRecords = _kafkaConsumer.poll(deadline - now);
+        LOG.info("got record");
       } catch (OffsetOutOfRangeException | NoOffsetForPartitionException oe) {
         handleInvalidOffsetException(oe);
       }
@@ -263,6 +265,7 @@ public class LiKafkaConsumerImpl<K, V> implements LiKafkaConsumer<K, V> {
           }
         }
       }
+      LOG.info("Got {} RAW records", rawRecords.count());
       _lastProcessedResult = _consumerRecordsProcessor.process(rawRecords);
       processedRecords = _lastProcessedResult.consumerRecords();
       // Clear the internal reference.
@@ -276,6 +279,7 @@ public class LiKafkaConsumerImpl<K, V> implements LiKafkaConsumer<K, V> {
         }
       }
       now = System.currentTimeMillis();
+      LOG.info("Processed records: {}", processedRecords.count());
     } while (processedRecords.isEmpty() && now < deadline);
     return processedRecords;
   }

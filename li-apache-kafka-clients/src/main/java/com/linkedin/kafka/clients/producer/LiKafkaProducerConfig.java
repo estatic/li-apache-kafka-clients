@@ -5,6 +5,7 @@
 package com.linkedin.kafka.clients.producer;
 
 import com.linkedin.kafka.clients.auditing.NoOpAuditor;
+import com.linkedin.kafka.clients.largemessage.AvroSegmentSerializer;
 import com.linkedin.kafka.clients.largemessage.DefaultSegmentSerializer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -65,7 +66,7 @@ public class LiKafkaProducerConfig extends AbstractConfig {
         .define(AUDITOR_CLASS_CONFIG, Type.CLASS, NoOpAuditor.class.getName(), Importance.MEDIUM, AUDITOR_CLASS_DOC)
         .define(KEY_SERIALIZER_CLASS_CONFIG, Type.CLASS, ByteArraySerializer.class.getName(), Importance.MEDIUM, KEY_SERIALIZER_CLASS_DOC)
         .define(VALUE_SERIALIZER_CLASS_CONFIG, Type.CLASS, ByteArraySerializer.class.getName(), Importance.MEDIUM, VALUE_SERIALIZER_CLASS_DOC)
-        .define(SEGMENT_SERIALIZER_CLASS_CONFIG, Type.CLASS, DefaultSegmentSerializer.class.getName(), Importance.MEDIUM, SEGMENT_SERIALIZER_CLASS_DOC)
+        .define(SEGMENT_SERIALIZER_CLASS_CONFIG, Type.CLASS, AvroSegmentSerializer.class.getName(), Importance.MEDIUM, SEGMENT_SERIALIZER_CLASS_DOC)
         .define(UUID_FACTORY_CLASS_CONFIG, Type.CLASS, UUIDFactory.DefaultUUIDFactory.class.getName(), Importance.LOW, UUID_FACTORY_CLASS_DOC);
   }
 

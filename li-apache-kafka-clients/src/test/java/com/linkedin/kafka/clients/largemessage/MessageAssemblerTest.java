@@ -22,8 +22,8 @@ public class MessageAssemblerTest {
   @Test
   public void testSingleMessageSegment() {
     // Create serializer/deserializers.
-    Serializer<LargeMessageSegment> segmentSerializer = new DefaultSegmentSerializer();
-    Deserializer<LargeMessageSegment> segmentDeserializer = new DefaultSegmentDeserializer();
+    Serializer<LargeMessageSegment> segmentSerializer = new AvroSegmentSerializer();
+    Deserializer<LargeMessageSegment> segmentDeserializer = new AvroSegmentDeserializer();
 
     byte[] messageWrappedBytes = wrapMessageBytes(segmentSerializer, "message".getBytes());
 
@@ -39,7 +39,7 @@ public class MessageAssemblerTest {
   @Test
   public void testNonLargeMessageSegmentBytes() {
     // Create serializer/deserializers.
-    Deserializer<LargeMessageSegment> segmentDeserializer = new DefaultSegmentDeserializer();
+    Deserializer<LargeMessageSegment> segmentDeserializer = new AvroSegmentDeserializer();
     MessageAssembler messageAssembler = new MessageAssemblerImpl(100, 100, true, segmentDeserializer);
 
     byte[] bytes = new byte[100];
