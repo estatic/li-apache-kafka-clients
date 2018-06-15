@@ -582,4 +582,7 @@ public interface LiKafkaConsumer<K, V> extends Consumer<K, V> {
    */
   @InterfaceOrigin.ApacheKafka
   void wakeup();
+
+  @InterfaceOrigin.LiKafkaClients
+  public Map<TopicPartition, OffsetAndMetadata> offsetsToCheckpoint();
 }

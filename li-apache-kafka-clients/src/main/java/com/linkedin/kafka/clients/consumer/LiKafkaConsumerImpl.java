@@ -661,4 +661,9 @@ public class LiKafkaConsumerImpl<K, V> implements LiKafkaConsumer<K, V> {
     LOG.trace("Current offset and metadata map: {}", offsetAndMetadataMap);
     return offsetAndMetadataMap;
   }
+
+  @Override
+  public Map<TopicPartition, OffsetAndMetadata> offsetsToCheckpoint() {
+    return getOffsetsToCommit(currentOffsetAndMetadataMap(), false);
+  }
 }
