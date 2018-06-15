@@ -27,49 +27,46 @@ public class AvroSegmentSerializer implements Serializer<LargeMessageSegment> {
 
     @Override
     public byte[] serialize(String s, LargeMessageSegment segment) {
-        if (segment.numberOfSegments > 1) {
-            String schema = "{\"namespace\": \"message.avro\",\n" +
-                    " \"type\": \"record\",\n" +
-                    " \"name\": \"GenericData.Record\",\n" +
-                    " \"fields\": [\n" +
-                    "     {\"name\": \"key\", \"type\": [\"null\", \"string\"]},\n" +
-                    "     {\"name\": \"value\",  \"type\": [\"bytes\"]},\n" +
-                    "     {\"name\": \"metadata\", \"type\": {\"type\": \"map\", \"values\": [\"null\", \"string\"]}}" +
-                    "   ]\n" +
-                    "}";
-            Schema sc = new Schema.Parser().parse(schema);
-            GenericData.Record data = new GenericData.Record(sc);
-            Map<String, String> metadata = new HashMap<>();
-            data.put("key", s == null ? String.valueOf(segment.messageId.getMostSignificantBits()) : s);
-            data.put("value", segment.payload);
+        String schema = "{\"namespace\": \"message.avro\",\n" +
+            " \"type\": \"record\",\n" +
+            " \"name\": \"GenericData.Record\",\n" +
+            " \"fields\": [\n" +
+            "     {\"name\": \"key\", \"type\": [\"null\", \"string\"]},\n" +
+            "     {\"name\": \"value\",  \"type\": [\"bytes\"]},\n" +
+            "     {\"name\": \"metadata\", \"type\": {\"type\": \"map\", \"values\": [\"null\", \"string\"]}}" +
+            "   ]\n" +
+            "}";
+        Schema sc = new Schema.Parser().parse(schema);
+        GenericData.Record data = new GenericData.Record(sc);
+        Map<String, String> metadata = new HashMap<>();
+        data.put("key", s == null ? String.valueOf(segment.messageId.getMostSignificantBits()) : s);
+        data.put("value", segment.payload);
 
-            metadata.put("version", String.valueOf(LargeMessageSegment.CURRENT_VERSION));
-            long checksum = segment.messageId.getMostSignificantBits() + segment.messageId.getLeastSignificantBits();
-            metadata.put("sign", String.valueOf(checksum));
-            metadata.put("most_sign_bits", String.valueOf(segment.messageId.getMostSignificantBits()));
-            metadata.put("least_sign_bits", String.valueOf(segment.messageId.getLeastSignificantBits()));
-            metadata.put("sequence_number", String.valueOf(segment.sequenceNumber));
+        metadata.put("version", String.valueOf(LargeMessageSegment.CURRENT_VERSION));
+        long checksum = segment.messageId.getMostSignificantBits() + segment.messageId.getLeastSignificantBits();
+        metadata.put("sign", String.valueOf(checksum));
+        metadata.put("most_sign_bits", String.valueOf(segment.messageId.getMostSignificantBits()));
+        metadata.put("least_sign_bits", String.valueOf(segment.messageId.getLeastSignificantBits()));
+        metadata.put("sequence_number", String.valueOf(segment.sequenceNumber));
 
-            metadata.put("number_of_segments", String.valueOf(segment.numberOfSegments));
-            metadata.put("message_size_in_bytes", String.valueOf(segment.messageSizeInBytes));
-            data.put("metadata", metadata);
+        metadata.put("number_of_segments", String.valueOf(segment.numberOfSegments));
+        metadata.put("message_size_in_bytes", String.valueOf(segment.messageSizeInBytes));
+        data.put("metadata", metadata);
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
+
             DatumWriter<GenericRecord> writer = new SpecificDatumWriter<>(sc);
 
-            try {
-                writer.write(data, encoder);
-                encoder.flush();
-                out.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return out.toByteArray();
-        } else {
-            return segment.payloadArray();
+        try {
+            writer.write(data, encoder);
+            encoder.flush();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+        return out.toByteArray();
     }
 
     @Override

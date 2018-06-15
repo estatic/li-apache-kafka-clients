@@ -14,7 +14,6 @@ import org.apache.kafka.common.serialization.Deserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,7 +72,7 @@ public class AvroSegmentDeserializer implements Deserializer<LargeMessageSegment
                     Integer.valueOf(metadata.get("sequence_number")),
                     Integer.valueOf(metadata.get("number_of_segments")),
                     Integer.valueOf(metadata.get("message_size_in_bytes")), payload);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
